@@ -8,11 +8,14 @@ public class Reader {
 
     public static void main(String[] args) {
 
+        System.out.println("Starting Market Player Reader");
+
         try {
             learn();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("Market Player Reader Finished");
 
     }
 

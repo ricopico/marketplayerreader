@@ -13,7 +13,7 @@ public class StockReader {
         Map<String, List<Stock>> symbolToStockSequence = new HashMap<String, List<Stock>>();
 
         for(InputStream inputStream : stockDataInput) {
-            String inputStreamString = new Scanner(inputStream,"UTF-8").useDelimiter("\\A").next();
+            String inputStreamString = new Scanner(inputStream,"UTF-8").useDelimiter("\n").next();
             List<String> entry = Utilities.returnCommaDelimitedStringAsList(inputStreamString);
 
             Stock s = parseStock(entry);
@@ -24,8 +24,14 @@ public class StockReader {
             symbolToStockSequence.get(s.getSymbol()).add(s);
         }
 
-        //TODO: sort the stock sequences by date
-        return null;
+         Map<String, List<Stock>> sortedSymbolToStockSequence = new HashMap<String, List<Stock>>();
+
+        for(String symbol : symbolToStockSequence.keySet()) {
+            List<Stock> sortedList = Utilities.sortStockListByDate(symbolToStockSequence.get(symbol));
+            sortedSymbolToStockSequence.put(symbol, sortedList);
+        }
+
+        return new StockData(sortedSymbolToStockSequence);
     }
     public static StockData convertResourcesToStockData() throws Exception {
 
@@ -46,9 +52,8 @@ public class StockReader {
         }
         return convertResourcesToStockData(stockDataInput);
     }
-    private static Stock parseStock(List<String> entry) {
-        //TODO: make this function convert list<String> to stock
-        return null;
+    private static Stock parseStock(List<String> entry) throws Exception {
+        return new Stock(entry);
     }
 
 
