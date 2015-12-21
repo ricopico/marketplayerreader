@@ -5,6 +5,7 @@ public class Constants {
 
     public static String[] dataFileExtensions = {"txt"};
     public static String[] years = {"2010","2011","2012","2013","2014","2015"};
+    public static int k = 100;
 
     private Constants() throws Exception {
         //do not instantiate this

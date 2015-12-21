@@ -24,12 +24,24 @@ public class StockReader {
             symbolToStockSequence.get(s.getSymbol()).add(s);
         }
 
-         Map<String, List<Stock>> sortedSymbolToStockSequence = new HashMap<String, List<Stock>>();
+        //sort the stock sequences by time
+        Map<String, List<Stock>> sortedSymbolToStockSequence = new HashMap<String, List<Stock>>();
 
         for(String symbol : symbolToStockSequence.keySet()) {
             List<Stock> sortedList = Utilities.sortStockListByDate(symbolToStockSequence.get(symbol));
             sortedSymbolToStockSequence.put(symbol, sortedList);
         }
+
+        //generate value transitions
+        for(String symbol : sortedSymbolToStockSequence.keySet()) {
+            List<Stock> stockList = sortedSymbolToStockSequence.get(symbol);
+            for(int i=0; i<stockList.size()-1; i++) {
+                Stock first = stockList.get(i);
+                Stock second = stockList.get(i+1);
+                first.setValueTransition(second);
+            }
+        }
+
 
         return new StockData(sortedSymbolToStockSequence);
     }
