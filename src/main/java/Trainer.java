@@ -14,6 +14,7 @@ public class Trainer {
         Clusterer clusterer = new Clusterer(this.stockData);
         clusterer.cluster();
 
+
     }
 
 }

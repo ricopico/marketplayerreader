@@ -30,6 +30,7 @@ public class Reader {
 
     private static void train(StockData stockData) {
         Trainer trainer = new Trainer(stockData);
+        trainer.train();
     }
 
 }

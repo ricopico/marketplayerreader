@@ -99,6 +99,10 @@ public class Stock implements Comparable<Stock> {
         this.nextValueTransition = valueTransitionObject;
         next.setPreviousValueTransition(valueTransitionObject);
     }
+    public void clearValueTransitions() {
+        this.nextValueTransition = null;
+        this.previousValueTransition = null;
+    }
     public void setPreviousValueTransition(ValueTransitionObject valueTransitionObject) {
         this.previousValueTransition = valueTransitionObject;
     }
