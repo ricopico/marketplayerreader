@@ -7,13 +7,18 @@ import java.util.Map;
 public class StockData {
 
     private Map<String, List<Stock>> symbolToStockSequenceList;
+    private Map<String, double[]> symbolToValueTransitionArray;
 
     public Map<String, List<Stock>> getSymbolToStockSequenceList() {
         return symbolToStockSequenceList;
     }
+    public Map<String, double[]> getSymbolToValueTransitionArray() {
+        return symbolToValueTransitionArray;
+    }
 
-    public StockData(Map<String, List<Stock>> symbolToStockSequenceList) {
+    public StockData(Map<String, List<Stock>> symbolToStockSequenceList, Map<String, double[]> symbolToValueTransitionArray) {
         this.symbolToStockSequenceList = symbolToStockSequenceList;
+        this.symbolToValueTransitionArray = symbolToValueTransitionArray;
     }
 
     public List<Stock> getStockSequenceForSymbol(String symbol) throws Exception {
@@ -24,6 +29,9 @@ public class StockData {
             throw new Exception("symbol not found: " + symbol);
         }
         return this.symbolToStockSequenceList.get(symbol);
+    }
+    public void plotStockPerformance(String symbol) {
+        Utilities.plotStockSequence(this.symbolToStockSequenceList.get(symbol), symbol);
     }
 
 }

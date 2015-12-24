@@ -21,9 +21,16 @@ public class Reader {
 
     public static void learn() throws Exception {
         StockData sd = StockReader.convertResourcesToStockData();
+        train(sd);
     }
     public static void learn(Set<InputStream> stockDataInput) throws Exception {
         StockData sd = StockReader.convertResourcesToStockData(stockDataInput);
+        train(sd);
+    }
+
+    private static void train(StockData stockData) {
+        Trainer trainer = new Trainer(stockData);
+        trainer.train();
     }
 
 }

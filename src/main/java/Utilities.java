@@ -1,8 +1,11 @@
+import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
+
 
 /**
  * Created by caneba on 12/20/15.
@@ -64,5 +67,29 @@ public class Utilities {
             }
         }
         return toReturn;
+    }
+
+    public static void plotStockSequence(List<Stock> stockSequence, String symbol) {
+
+        System.out.println(symbol + " : " + stockSequence.size());
+        long start = stockSequence.get(0).getDate();
+        long end = stockSequence.get(stockSequence.size()-1).getDate();
+
+        Stage stage = new Stage();
+        stage.setTitle("Stock performance plot");
+        //TODO: this stuff
+
+
+    }
+
+    public static void writeToFile(String outputFilePath, String string) {
+        try {
+            PrintWriter writer = new PrintWriter(outputFilePath, "UTF-8");
+            writer.println(string);
+            writer.flush();
+            writer.close();
+        } catch (Exception e) {
+            System.err.println("could not print to output file : " + e.getMessage());
+        }
     }
 }
