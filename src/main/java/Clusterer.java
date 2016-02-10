@@ -1,4 +1,6 @@
 import net.sf.javaml.clustering.KMeans;
+import net.sf.javaml.clustering.evaluation.ClusterEvaluation;
+import net.sf.javaml.clustering.evaluation.SumOfSquaredErrors;
 import net.sf.javaml.core.Dataset;
 import net.sf.javaml.core.DefaultDataset;
 import net.sf.javaml.core.DenseInstance;
@@ -19,71 +21,15 @@ public class Clusterer {
     }
 
     public void cluster() {
-        // todo: this
 
-        Map<String, List<Stock>> symbolToStockSequence_normalized = new HashMap<String, List<Stock>>();
-        Map<String, double[]> symbolToTransitionValuesArray_normalized = new HashMap<String, double[]>();
-
-        // get list of all dates
-        Set<Long> setOfAllDates = new HashSet<Long>();
-        List<Long> listOfAllDates = new LinkedList<Long>();
-        for(String symbol : stockData.getSymbolToStockSequenceList().keySet()) {
-            List<Stock> stockList = stockData.getSymbolToStockSequenceList().get(symbol);
-            for(Stock stock : stockList) {
-                setOfAllDates.add(stock.getDate());
-            }
-        }
-        listOfAllDates.addAll(setOfAllDates);
-        Long[] arrayOfAllDates = new Long[listOfAllDates.size()];
-        for(int i=0; i<listOfAllDates.size(); i++) {
-            arrayOfAllDates[i] = listOfAllDates.get(i);
-        }
-        Arrays.sort(arrayOfAllDates);
-        listOfAllDates.clear();
-        for(int i=0; i<arrayOfAllDates.length; i++) {
-            listOfAllDates.add(arrayOfAllDates[i]);
-        }
-
-        // insert
-        for(String symbol : stockData.getSymbolToStockSequenceList().keySet()) {
-            int curStockIndex = 0;   //pointer to current stock to examine
-            int curDateIndex = 0;
-            List<Stock> stockSequence = stockData.getSymbolToStockSequenceList().get(symbol);
-            List<Stock> normalizedList = new LinkedList<Stock>();
-
-            //keep incrementing date pointer until matching date to cur stock is found
-            while(curDateIndex < listOfAllDates.size()) {
-                if(curStockIndex == stockSequence.size()) {
-                    break;
-                }
-                Stock curStock = stockSequence.get(curStockIndex);
-                long curDate = listOfAllDates.get(curDateIndex);
-                if(curDate == curStock.getDate()) {
-                    normalizedList.add(curStock);
-                    curDateIndex++;
-                    curStockIndex++;
-                } else {
-                    normalizedList.add(null);
-                    curDateIndex++;
-                }
-            }
-            if(normalizedList.size() < listOfAllDates.size()) {
-                int nullEltsToAdd = listOfAllDates.size() - normalizedList.size();
-                for(int i=0; i<nullEltsToAdd; i++) {
-                    normalizedList.add(null);
-                }
-            }
-            symbolToStockSequence_normalized.put(symbol, normalizedList);
-        }
-
-        //clear the value transitions, and add new value transition data
-        for(String symbol : symbolToStockSequence_normalized.keySet()) {
-            StockReader.clearValueTransitionsFromStockList(symbolToStockSequence_normalized.get(symbol));
-        }
-        StockReader.generateValueTransitions(symbolToStockSequence_normalized);
+        Map<String, List<Stock>> symbolToStockSequence_normalized = StockReader.getNormalizedSymbolToStockList(stockData.getSymbolToStockSequenceList(), stockData.getListOfAllDates());
+        Map<String, double[]> symbolToTransitionValuesArray_normalized = StockReader.getNormalizedSymbolToTransitionValuesDoubleArray(symbolToStockSequence_normalized);
+        List<Long> listOfAllDates = stockData.getListOfAllDates();
 
         // do the clustering using the normalized list
-        Map<String, double[]> symbolToValuesArray = StockReader.getSymbolToValueTransitionsAsDoubleArray(symbolToStockSequence_normalized);
+        //Map<String, double[]> symbolToValuesArray = StockReader.getSymbolToValueTransitionsAsDoubleArray(symbolToStockSequence_normalized);
+        Map<String, double[]> symbolToValuesArray = StockReader.generateSymbolToStockValueTransitionArray_small(stockData.getSymbolToStockSequenceList(), stockData.getListOfAllDates());
+
 
         Map<String, Instance> symbolToInstance = generateSymbolToInstanceMapping(symbolToValuesArray);
         Map<Instance, String> instanceToSymbol = generateInstanceToSymbolMapping(symbolToInstance);
@@ -91,6 +37,9 @@ public class Clusterer {
         //create the data set
         Dataset dataset = new DefaultDataset();
         for(String symbol : symbolToInstance.keySet()) {
+            if(Constants.numberOfSymbolsToTrack<dataset.size()) {
+                break;
+            }
             dataset.add(symbolToInstance.get(symbol));
         }
 
@@ -99,23 +48,34 @@ public class Clusterer {
         net.sf.javaml.clustering.Clusterer km = new KMeans(Constants.k, Constants.iterations);
         Dataset[] clusters = km.cluster(dataset);
 
+        double score = evaluateClusters(clusters);
+
         System.out.println("clusterer done");
 
         //write the clusters to file
-        String clusterString = "";
+        String clusterString = "CLUSTERING SCORE : " + score + "\n----------------------------\n";
         for(int j=0; j<clusters.length; j++) {
             Dataset cluster = clusters[j];
-            clusterString += "CLUSTER " + j + " : \n";
-            for(int i2=0; i2<cluster.size(); i2++) {
-                Instance instance = cluster.get(i2);
-                String symbol = instanceToSymbol.get(instance);
-                clusterString += symbol + " == ";
-                clusterString += instance;
-                clusterString += "\n";
-            }
+            clusterString += "CLUSTER " + j + "; \n";
+            int sizeOfCluster = cluster.size();
+            clusterString += "CLUSTER SIZE: " + sizeOfCluster + ";\n";
+
+//            for(int i2=0; i2<cluster.size(); i2++) {
+//                Instance instance = cluster.get(i2);
+//                String symbol = instanceToSymbol.get(instance);
+//                clusterString += symbol + " == ";
+//                clusterString += instance;
+//                clusterString += "\n";
+//            }
         }
         Utilities.writeToFile(Constants.outputFile, clusterString);
 
+    }
+    private double evaluateClusters(Dataset[] clusters) {
+        ClusterEvaluation sse = new SumOfSquaredErrors();
+        double score = sse.score(clusters);
+
+        return score;
     }
     private Map<Instance, String> generateInstanceToSymbolMapping(Map<String, Instance> symbolToInstance) {
         Map<Instance, String> toReturn = new HashMap<Instance, String>();

@@ -13,6 +13,7 @@ public class Reader {
         try {
             learn();
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
         }
         System.out.println("Market Player Reader Finished");
@@ -28,7 +29,7 @@ public class Reader {
         train(sd);
     }
 
-    private static void train(StockData stockData) {
+    private static void train(StockData stockData) throws Exception {
         Trainer trainer = new Trainer(stockData);
         trainer.train();
     }

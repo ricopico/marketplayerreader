@@ -11,6 +11,7 @@ public class Stock implements Comparable<Stock> {
     private ValueTransitionObject previousValueTransition = null;
     private ValueTransitionObject nextValueTransition = null;
 
+    private Stock() {}
     public Stock(List<String> entry) throws Exception {
         try {
             this.symbol = entry.get(0);
@@ -57,6 +58,15 @@ public class Stock implements Comparable<Stock> {
         public double getValue_4() {
             return value_4;
         }
+
+        public double getAverageOfAllValues() {
+            return ((this.value_1 + this.value_2 + this.value_3 + this.value_4)/4);
+        }
+
+        public ValueObject clone() {
+            ValueObject clone = new ValueObject(this.value_1, this.value_2, this.value_3, this.value_4);
+            return clone;
+        }
     }
 
     public class ValueTransitionObject {
@@ -92,6 +102,7 @@ public class Stock implements Comparable<Stock> {
         public double getAveragePercentValueDiff() {
             return averagePercentValueDiff;
         }
+
     }
 
     public void setValueTransition(Stock next) {
@@ -117,4 +128,22 @@ public class Stock implements Comparable<Stock> {
         //return compareQuantity - this.quantity;
 
     }
+    public void setSymbol(String symbol) { this.symbol = symbol; }
+    public void setDate(long date) { this.date = date; }
+    public void setVolume(long volume) { this.volume = volume; }
+    public void setValueObject(ValueObject values) { this.values = values; }
+
+    public Stock clone() {
+
+        Stock cloneStock = new Stock();
+        cloneStock.setSymbol(this.symbol);
+        cloneStock.setDate(this.date);
+        cloneStock.setVolume(this.volume);
+        cloneStock.setValueObject(this.values.clone());
+        cloneStock.previousValueTransition = null;
+        cloneStock.nextValueTransition = null;
+
+        return cloneStock;
+    }
+
 }

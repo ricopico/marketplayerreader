@@ -82,6 +82,16 @@ public class Utilities {
 
     }
 
+    public static int getIndexOfCorrectInsertOfDoubleValueInList(List<Double> list, double toCheck) {
+        for(int i=0; i<list.size(); i++) {
+            if(list.get(i) > toCheck) {
+                return i;
+            }
+        }
+
+        return list.size();
+    }
+
     public static void writeToFile(String outputFilePath, String string) {
         try {
             PrintWriter writer = new PrintWriter(outputFilePath, "UTF-8");
@@ -91,5 +101,31 @@ public class Utilities {
         } catch (Exception e) {
             System.err.println("could not print to output file : " + e.getMessage());
         }
+    }
+
+    public static Double[] convertDoubleSetToArray(Set<Double> toConvert) {
+        Double[] toReturn = new Double[toConvert.size()];
+        int i=0;
+        for(Double d : toConvert) {
+            toReturn[i] = d;
+        }
+        return toReturn;
+    }
+
+    public static double[] convertDoubleListToArray(List<Double> toConvert) {
+        double[] toReturn = new double[toConvert.size()];
+
+        for(int i=0; i<toConvert.size(); i++) {
+            toReturn[i] = toConvert.get(i);
+        }
+
+        return toReturn;
+    }
+    public static double getAverageOfDoubleArray(double[] arr) {
+        double sum = 0;
+        for(int i=0; i<arr.length; i++) {
+            sum += arr[i];
+        }
+        return sum/arr.length;
     }
 }
